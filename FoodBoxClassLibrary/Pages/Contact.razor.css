@@ -1,6 +1,24 @@
 ﻿/*https://codepen.io/krisantuswanandi/pen/KxrgeZ*/
 
+@keyframes slideInLeft {
+    from {
+        transform: translate(-300px);
+    }
 
+    to {
+        transform: translate(0px);
+    }
+}
+
+.testHeading {
+    animation-name: slideInLeft;
+    animation-duration: 1s;
+    animation-timing-function: ease-in;
+    animation-delay: 0s;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-fill-mode: none;
+}
 
 *, *:before, *:after {
     box-sizing: border-box;
