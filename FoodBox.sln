@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FrontEnd", "FrontEnd\FrontEnd.csproj", "{EABB8953-1730-4B0E-8540-6418AC0D4E11}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FBAPI", "FBAPI\FBAPI.csproj", "{5A7B1A7B-A9F5-409B-856F-2C0ED09BF489}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoodBoxBlazorTest.Tests", "FoodBoxBlazorTest.Tests\FoodBoxBlazorTest.Tests.csproj", "{F780DC16-E5F2-47F4-A01D-DC6E1A52B29C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoodBoxClassLibrary", "FoodBoxClassLibrary\FoodBoxClassLibrary.csproj", "{0794BBE7-0A60-43E5-A2E0-AB3E00007F08}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoodBoxMaui", "FoodBoxMaui\FoodBoxMaui.csproj", "{BD6BD096-76A8-4B48-BC83-34DFE67416AA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EABB8953-1730-4B0E-8540-6418AC0D4E11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EABB8953-1730-4B0E-8540-6418AC0D4E11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EABB8953-1730-4B0E-8540-6418AC0D4E11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EABB8953-1730-4B0E-8540-6418AC0D4E11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A7B1A7B-A9F5-409B-856F-2C0ED09BF489}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A7B1A7B-A9F5-409B-856F-2C0ED09BF489}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A7B1A7B-A9F5-409B-856F-2C0ED09BF489}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A7B1A7B-A9F5-409B-856F-2C0ED09BF489}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F780DC16-E5F2-47F4-A01D-DC6E1A52B29C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F780DC16-E5F2-47F4-A01D-DC6E1A52B29C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F780DC16-E5F2-47F4-A01D-DC6E1A52B29C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F780DC16-E5F2-47F4-A01D-DC6E1A52B29C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0794BBE7-0A60-43E5-A2E0-AB3E00007F08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0794BBE7-0A60-43E5-A2E0-AB3E00007F08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0794BBE7-0A60-43E5-A2E0-AB3E00007F08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0794BBE7-0A60-43E5-A2E0-AB3E00007F08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD6BD096-76A8-4B48-BC83-34DFE67416AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD6BD096-76A8-4B48-BC83-34DFE67416AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD6BD096-76A8-4B48-BC83-34DFE67416AA}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{BD6BD096-76A8-4B48-BC83-34DFE67416AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD6BD096-76A8-4B48-BC83-34DFE67416AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD6BD096-76A8-4B48-BC83-34DFE67416AA}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5057374A-6146-4722-B603-BCCDC7C054DB}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,33 @@
+﻿@page "/add"
+@page "/add/{num1:int}/{num2:int}"
+
+<h3>addition</h3>
+
+@if(sum is not null)
+{
+    <h4>Your sum is: @sum</h4>
+}
+
+@code {
+    [Parameter]
+    public int? num1 { get; set; }
+
+    [Parameter]
+    public int? num2 { get; set; }
+    int? sum { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(num1 is null || num2 is null)
+        {
+            num1 = 4;
+            num2 = 5;
+        }
+
+        HttpClient hp = new();
+        Uri u = new("https://localhost:7220/");
+        hp.BaseAddress = u;
+        sum = await hp.GetFromJsonAsync<int>($"addition/{num1}/{num2}");
+        // call our api 
+    }
+}

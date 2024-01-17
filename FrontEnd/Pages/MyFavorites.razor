@@ -1,0 +1,61 @@
+﻿@page "/my_favorites"
+@using System.Security.Claims;
+@inject IDbContextFactory<FoodBoxDB> ContextFactory
+@attribute [Authorize()]
+
+<PageTitle>MyFavorites</PageTitle>
+
+@if(favItems is not null)
+{
+    <div class="row">
+        @foreach (var favItem in favItems)
+        {
+            <div class="col-xl-4 col-md-6">
+                <div class="single_order">
+                    <div class="order_thumb">
+                        <img src="Images/@favItem.Item.Image" class="rounded" style="height:17em;" alt="">
+                    </div>
+                    <div class="order_info">
+                        <p>
+                            @favItem.Item.Ingredients
+                            <div class="text-black">@favItem.Item.Description</div>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+@code {
+    [CascadingParameter]
+    Task<AuthenticationState> AuthState { get; set; }
+    List<FavoriteItem> favItems { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var context = ContextFactory.CreateDbContext();
+
+        var a = await AuthState;
+        var userId = a.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var custs = await context.Customers.ToListAsync();
+        Customer customer;
+        if (userId is null)
+        {
+            if ((customer = Order.CheckForCustomer(custs)) is null)
+            {
+                var userAndCustomer = Order.CreateCustomer();
+                context.Customers.Add(customer = userAndCustomer.Item2);
+                context.Users.Add(userAndCustomer.Item1);
+                await context.SaveChangesAsync();
+            }
+        }
+        else
+        {
+            customer = custs.Where(opt => opt.UserId == userId).Single();
+        }
+
+        favItems = await context.FavoriteItems.Where(fi => fi.CustomerId == customer.Id).Include(fi => fi.Item).ToListAsync();
+    }
+}

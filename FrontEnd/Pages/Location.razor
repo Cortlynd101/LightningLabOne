@@ -1,0 +1,46 @@
+﻿@page "/location"
+@inject IDbContextFactory<FoodBoxDB> contextFactory
+
+<PageTitle>Location</PageTitle>
+
+<h3>Our Locations</h3>
+
+<!--We want pictures!!!-->
+@if (restaurants is not null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Country</th>
+                <th scope="col">State</th>
+                <th scope="col">City</th>
+                <th scope="col">Street Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Restaurant R in restaurants)
+                {
+                <tr>
+                    <td>@R.RestaurantName</td>
+                    <td>@R.Country</td>
+                    <td>@R.State</td>
+                    <td>@R.City</td>
+                    <td>@R.Address</td>
+                </tr>
+                }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    List<Restaurant>? restaurants { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var context = contextFactory.CreateDbContext();
+        restaurants = await context.Restaurants.ToListAsync();
+    }
+}

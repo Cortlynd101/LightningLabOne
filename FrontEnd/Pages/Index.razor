@@ -1,0 +1,88 @@
+﻿@page "/"
+@inject IDbContextFactory<FoodBoxDB> ContextFactory
+@inject OrderState OrderState
+
+<PageTitle>Home</PageTitle>
+
+
+
+<div class="container1">
+
+    <div class="carousel">
+        <div class="carousel__face"></div>
+        <div class="carousel__face"></div>
+        <div class="carousel__face"></div>
+        <div class="carousel__face"></div>
+        <div class="carousel__face"></div>
+        <div class="carousel__face"></div>
+        <div class="carousel__face"></div>
+        <div class="carousel__face"></div>
+        <div class="carousel__face"></div>
+    </div>
+
+    <NavLink class="nav-link" href="menu" Match="NavLinkMatch.All">
+        <button class="btn" href="order">Order Now!</button>
+    </NavLink>
+</div>
+
+<!-- order_area_start -->
+<div class="order_area">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="section_title mb-70">
+                    <h3>Popular Orders</h3>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+        @if (restaurants is not null && menuItems is not null)
+        {
+            <div class="row">
+               @*  @for (int i = 1; i < 7; i++)
+                {
+                    <div class="col-xl-4 col-md-6">
+                        <div class="single_order">
+                            <div class="order_thumb">
+                                <img src="Images/@restaurants[selectedRestaurant - 1].RestaurantItems.Where(id => id.ItemId == i).Single().Item.Image" class="rounded" style="height:17em;" alt="">
+                            </div>
+                            <div class="order_info">
+                                <h3><a href="orderingitem/@restaurants[selectedRestaurant - 1].RestaurantItems.Where(id => id.ItemId == i).Single().Item.Id/">@restaurants[selectedRestaurant - 1].RestaurantItems.Where(id => id.ItemId == i).Single().Item.ItemName</a></h3>
+                                <p>
+                                    @restaurants[selectedRestaurant - 1].RestaurantItems.Where(id => id.ItemId == i).Single().Item.Ingredients
+                                    <p class="text-black">
+                                        @restaurants[selectedRestaurant - 1].RestaurantItems.Where(id => id.ItemId == i).Single().Item.Description
+                                    </p>
+                                </p>
+                            <a href="menu" class="boxed_btn">Order Now!</a>
+                            </div>
+                        </div>
+                    </div>
+                } *@
+            </div> 
+        }
+    </div>
+</div>
+<!-- order_area_end -->
+
+@code {
+    private int selectedRestaurant { get; set; } = 1;
+    private List<Item> menuItems { get; set; }
+    private List<Restaurant> restaurants { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = ContextFactory.CreateDbContext();
+        menuItems = await context.Items.ToListAsync();
+        restaurants = await context.Restaurants
+            .Include(ri => ri.RestaurantItems)
+            .OrderBy(ri => ri.Id)
+            .ToListAsync();
+        await refreshAsync();
+    }
+    async Task refreshAsync()
+    {
+        StateHasChanged();
+        await Task.CompletedTask;
+    }
+}

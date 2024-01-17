@@ -1,0 +1,144 @@
+﻿@page "/orderingitem/{SelectedItemId:int}/{RestaurantId:int}"
+@using FrontEnd.Pages.Dto;
+@using FrontEnd.Pages
+@using System.Security.Claims;
+@inject IDbContextFactory<FoodBoxDB> ContextFactory
+@inject NavigationManager NavigationManager
+
+@if (restaurant is not null && item is not null)
+{
+    <EditForm Model="selectedItemOrder">
+        <DataAnnotationsValidator />
+        <div class="background">
+            <div class="container">
+                <div class="screen">
+
+                    <div class="screen-body">
+                        <div class="screen-body-item left">
+                            <div class="app-title">
+                                <span>@item.ItemName</span>
+                            </div>
+                            <div class="app-contact">CONTACT INFO : +1 314 928 0595</div>
+                        </div>
+                        <div class="screen-body-item">
+                            <div class="app-form">
+                                <div class="app-form-group">
+                                    <InputSelect id="quantity" class="form-control"
+                                    @bind-Value="@quantityItem">
+                                        @foreach (int num in quantity)
+                                        {
+                                            <option value="@num">@num</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="app-form-group buttons">
+                                    <button type="submit" class="app-form-button"
+                                            disabled="@IsBusy" onclick="@(() => HandleSubmit())">
+                                        Submit
+                                    </button>
+                                    <div style="color:grey;">Price: @(quantityItem * restaurant.RestaurantItems.Where(id => id.ItemId == SelectedItemId).Single().Price)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+}
+else
+{
+    <p>Loading page</p>
+}
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthState { get; set; }
+    [Parameter]
+    public int SelectedItemId { get; set; }
+    [Parameter]
+    public int RestaurantId { get; set; }
+    private Restaurant? restaurant { get; set; }
+    private Item? item { get; set; }
+    [Parameter]
+    public decimal price { get; set; }
+    [Parameter]
+    public EventCallback<bool> OnSubmit { get; set; }
+    private EventCallback OnCancel { get; set; }
+    private bool IsBusy { get; set; }
+    [Parameter]
+    public int quantityItem { get; set; } = 1;
+    private int[] quantity = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    OrderingItemDto selectedItemOrder { get; set; } = new();
+    private Cart cart { get; set; }
+    private Customer customer { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(true);
+        }
+    }
+    private async Task HandleInvalidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(false);
+        }
+    }
+    private async Task HandleCancel()
+    {
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+    private async Task HandleSubmit()
+    {
+        OrderHistory orderHistory = new(ContextFactory);
+        await orderHistory.AddItemToCustomersCartAsync(customer, item,
+        restaurant, restaurant.RestaurantItems.Where(id => id.ItemId == SelectedItemId).Single().Price,
+        quantityItem);
+        NavigateToOrderPage();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = ContextFactory.CreateDbContext();
+        restaurant = await context.Restaurants
+            .Include(r => r.RestaurantItems)
+            .ThenInclude(ri => ri.Item)
+            .Where(r => r.Id == RestaurantId)
+            .SingleAsync();
+
+        item = restaurant.RestaurantItems.Where(ri => ri.ItemId == SelectedItemId).Single().Item;
+
+        var a = await AuthState;
+        var userId = a.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var custs = await context.Customers.ToListAsync();
+
+        if (userId is null)
+        {
+            if ((customer = Order.CheckForCustomer(custs)) is null)
+            {
+                var userAndCustomer = Order.CreateCustomer();
+                context.Customers.Add(customer = userAndCustomer.Item2);
+                context.Users.Add(userAndCustomer.Item1);
+                await context.SaveChangesAsync();
+            }
+        }
+        else
+        {
+            customer = custs.Where(opt => opt.UserId == userId).Single();
+        }
+
+        var oh = new OrderHistory(ContextFactory);
+        cart = await oh.FindCustCartAsync(customer, restaurant);
+    }
+
+    private void NavigateToOrderPage()
+    {
+        NavigationManager.NavigateTo($"/order");
+    }
+}

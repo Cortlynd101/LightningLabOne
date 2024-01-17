@@ -1,0 +1,17 @@
+﻿@* @page "/auth"
+@using Microsoft.VisualBasic;
+
+<h3>PageWithAuthState</h3>
+
+<AuthorizeView Roles="@Constants.AdminRole">
+    <Authorized>
+        <div class="authorizedGreeting">You're an admin!</div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="notAuthorizedGreeting">Go away.</div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+} *@

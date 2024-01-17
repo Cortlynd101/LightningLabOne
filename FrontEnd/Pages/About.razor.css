@@ -1,0 +1,180 @@
+﻿h3 {
+    --s: 0.1em; /* the thickness of the line */
+    --c: #2c4bff; /* the color */
+
+    color: #0000;
+    padding-bottom: var(--s);
+    background: linear-gradient(90deg,var(--c) 50%,#000 0) calc(100% - var(--_p,0%))/200% 100%, linear-gradient(var(--c) 0 0) 0% 100%/var(--_p,0%) var(--s) no-repeat;
+    -webkit-background-clip: text,padding-box;
+    background-clip: text,padding-box;
+    transition: 0.5s;
+}
+    
+
+    h3:hover {
+        --_p: 100%
+    }
+
+
+body {
+    height: 100vh;
+    margin: 0;
+    display: grid;
+    place-content: center;
+}
+
+h3 {
+    font-family: system-ui, sans-serif;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+
+
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: #100721;
+    font-family: "Ubuntu Mono", monospace;
+    font-weight: 400;
+}
+
+.container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    height: 600px;
+    gap: 10px;
+    width: 50%; /* You can adjust the width as needed */
+    margin: auto;
+}
+
+
+
+    .container > div {
+        flex: 0 0 120px;
+        border-radius: 0.5rem;
+        transition: 0.5s ease-in-out;
+        cursor: pointer;
+        box-shadow: 1px 5px 15px #1e0e3e;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .container > div:nth-of-type(1) {
+            background: url("https://cdn.pixabay.com/photo/2018/07/31/07/55/tomatoes-3574427_1280.jpg") no-repeat 50%/cover;
+        }
+
+        .container > div:nth-of-type(2) {
+            background: url("https://cdn.pixabay.com/photo/2016/05/21/14/04/food-1406879_1280.jpg") no-repeat 50%/cover;
+        }
+
+        .container > div:nth-of-type(3) {
+            background: url("https://cdn.pixabay.com/photo/2015/04/08/13/13/food-712665_1280.jpg") no-repeat 50%/cover;
+        }
+
+        .container > div:nth-of-type(4) {
+            background: url("https://cdn.pixabay.com/photo/2016/03/10/18/44/top-view-1248955_1280.jpg") no-repeat 50%/cover;
+        }
+
+        .container > div .content {
+            font-size: 1.5rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            opacity: 0;
+            flex-direction: column;
+            height: 100%;
+            justify-content: flex-end;
+            background: #02022e;
+            background: linear-gradient(0deg, rgba(2, 2, 46, 0.6755077031) 0%, rgba(255, 255, 255, 0) 100%);
+            transform: translatey(100%);
+            transition: opacity 0.5s ease-in-out, transform 0.5s 0.2s;
+            visibility: hidden;
+        }
+
+            .container > div .content span {
+                display: block;
+                margin-top: 5px;
+                font-size: 1.2rem;
+            }
+
+        .container > div:hover {
+            flex: 0 0 400px;
+            box-shadow: 1px 3px 15px #7645d8;
+            transform: translatey(-10px);
+        }
+
+            .container > div:hover .content {
+                opacity: 1;
+                transform: translatey(0%);
+                visibility: visible;
+            }
+
+}
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+.container1 {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    color: #e44d26; /* Restaurant brand color */
+    margin-bottom: 20px;
+}
+
+p {
+    margin: 10px 0;
+}
+
+img.text {
+    width: 150px;
+    margin-top: 10px;
+}
+
+.ourRest img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+h2 {
+    margin-top: 30px;
+    color: #333;
+}
+
+.openingHours {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+    .openingHours div {
+        width: 45%;
+        margin: 10px 0;
+    }
+
+.ptags {
+    margin-top: 20px;
+}

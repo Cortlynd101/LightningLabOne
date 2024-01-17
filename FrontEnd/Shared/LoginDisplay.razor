@@ -1,0 +1,16 @@
+﻿<AuthorizeView>
+    <Authorized>
+        
+        <NavLink class="nav-link" href="Identity/Account/Manage" Match="NavLinkMatch.All">
+            Hello @context.User.Identity?.Name!
+        </NavLink>
+        <form method="post" action="Identity/Account/Logout">
+            <button type="submit" class="nav-link btn btn-link">Log out</button>
+        </form>
+    </Authorized>
+    <NotAuthorized>
+        <NavLink class="nav-link" href="Identity/Account/Login" Match="NavLinkMatch.All">
+            <span class="oi oi-person" aria-hidden="true"></span> Register/Login
+        </NavLink>
+    </NotAuthorized>
+</AuthorizeView>

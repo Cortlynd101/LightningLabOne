@@ -1,0 +1,187 @@
+﻿@page "/order"
+@using FrontEnd.Pages.Dto;
+@using System.Security.Claims;
+@using System.Net;
+@inject IDbContextFactory<FoodBoxDB> ContextFactory
+@inject NavigationManager NavigationManager
+
+<!-- Start of Google Authorization -->
+<AuthorizeView>
+    <Authorized>
+        <div>
+            Welcome! @context.User.Identity?.Name
+        </div>
+    </Authorized>
+</AuthorizeView>
+<!-- End Google Authorization -->
+<h3>Your Order: </h3>
+@if (cart is not null && cart.CartItems.Count() > 0)
+{
+    <button class="btn-warning" @onclick="DeleteAllItems">Delete All Items in Cart</button>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Picture</th>
+                <th scope="col">Name</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Edit</th>
+                <th scope="col">Price</th>
+                <th scope="col">Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cartItem in cart.CartItems)
+            {
+                <tr>
+                    <td><img src="Images/@cartItem.Item.Image" class="rounded-pill" alt="@cartItem.Item.ItemName image" style="height:13em;"></td>
+                    <td>@cartItem.Item.ItemName</td>
+                    <td>@cartItem.Quantity</td>
+                    <td><a href="edititem/@cartItem.Id" class="boxed_btn" style="color:black;">Edit</a></td>
+                    <td>@(cartItem.ActualPrice * cartItem.Quantity)</td>
+                    <td><a href="/removeItem/@cartItem.Id" class="boxed_btn" style="color:black;">Remove</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <h3>Order Total: @orderTotal</h3>
+    <div class="container" style="margin-top: 1em; margin-bottom: 1em;">
+    <button type="submit" class="primary"
+            disabled="@IsBusy" @onclick="HandleSubmit">
+        Submit
+    </button>
+    </div>
+}
+else
+{
+    <img class="emtbox" src="/Images/EmptyBox.png"/>
+}
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthState { get; set; }
+
+    private decimal orderTotal { get; set; } = 0;
+    private EventCallback<bool> OnSubmit { get; set; }
+    private EventCallback OnCancel { get; set; }
+    private bool IsBusy { get; set; }
+    private List<string> orderMethods = new() { "Takeout", "Delivery" };
+    public string selectedOrderMethod { get; set; } = "Takeout";
+    private int[] quantity = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    private Cart cart { get; set; }
+
+    private async Task DeleteItemAsync(CartItem ci)
+    {
+        var context = ContextFactory.CreateDbContext();
+        await context.CartItems.Where(c => c.Id == ci.Id).ExecuteDeleteAsync();
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/order");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(true);
+        }
+    }
+    private async Task HandleInvalidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(false);
+        }
+    }
+    private async Task HandleCancel()
+    {
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+    private void HandleSubmit()
+    {
+        NavegateToCustomerPayment();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var context = ContextFactory.CreateDbContext();
+
+        var a = await AuthState;
+        var userId = a.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var custs = await context.Customers.ToListAsync();
+        Customer customer;
+        if (userId is null)
+        {
+            if ((customer = Order.CheckForCustomer(custs)) is null)
+            {
+                var userAndCustomer = Order.CreateCustomer();
+                context.Customers.Add(customer = userAndCustomer.Item2);
+                context.Users.Add(userAndCustomer.Item1);
+                await context.SaveChangesAsync();
+            }
+        }
+        else
+        {
+            customer = custs.Where(opt => opt.UserId == userId).Single();
+        }
+
+        var oh = new OrderHistory(ContextFactory);
+        cart = await oh.FindCustCartAsync(customer);
+
+        @foreach (var cartItem in cart.CartItems)
+        {
+            orderTotal = orderTotal + (cartItem.ActualPrice * cartItem.Quantity);
+        }
+    }
+
+    public static (IdentityUser, Customer) CreateCustomer()
+    {
+        string hostName = Dns.GetHostName();
+        string Ip = Dns.GetHostByName(hostName).AddressList[0].ToString();
+
+        Customer c = new()
+            {
+                UserId = Ip,
+                Points = 0
+            };
+
+        IdentityUser iu = new()
+        {
+            Id = Ip,
+            EmailConfirmed = true,
+            TwoFactorEnabled = false,
+            PhoneNumberConfirmed = false,
+            LockoutEnabled = true,
+            AccessFailedCount = 0
+        };
+
+        return (iu, c);
+    }
+
+    public static Customer CheckForCustomer(List<Customer> customers)
+    {
+        string hostName = Dns.GetHostName();
+        string Ip = Dns.GetHostByName(hostName).AddressList[0].ToString();
+        var custs = customers.Where(c => c.UserId == Ip);
+
+        if (custs.Count() > 0)
+            return custs.First();
+
+        return null;
+    }
+
+    private void NavegateToCustomerPayment()
+    {
+        NavigationManager.NavigateTo($"/CustomerPayment");
+    }
+
+    private async Task DeleteAllItems()
+    {
+        var oh = new OrderHistory(ContextFactory);
+        await oh.DeleteCustCartItems(cart);
+        cart.CartItems = new List<CartItem>();
+    }
+}

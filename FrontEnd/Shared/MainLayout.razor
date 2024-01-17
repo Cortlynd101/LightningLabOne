@@ -1,0 +1,64 @@
+﻿@inherits LayoutComponentBase
+
+<PageTitle>FrontEnd</PageTitle>
+
+<div class="page">
+    @* <div class="sidebar">
+        <NavMenu />
+    </div> *@
+
+    <main>
+        <div class="top-row px-4">
+            <NavLink class="nav-link" href="menu" Match="NavLinkMatch.All">
+                <span class="oi oi-list" aria-hidden="true"></span> Menu
+            </NavLink>
+            <NavLink class="nav-link" href="order" Match="NavLinkMatch.All">
+                <span class="oi oi-clipboard" aria-hidden="true"></span> Order
+            </NavLink>
+            @* <button type="button" href="/">
+                <img class="logo" src="
+                    es/logobetterbackground.png"   />
+            </button> *@
+            <a href="/"><img src="Images/logobetterbackground.png" style="width:6.5em;height:6.5em;"></a>
+            <LoginDisplay />
+            <NavLink class="nav-link" href="about" Match="NavLinkMatch.All">
+                <span class="oi oi-info" aria-hidden="true"></span> About
+                @* <Tooltip Title="Info Tooltip" role="button">
+                <Icon Name="IconName.InfoCircleFill">
+
+                </Icon>
+                </Tooltip> *@
+            </NavLink>
+        </div>
+
+        <article class="body">
+            @Body
+        </article>
+        <footer class="footer">
+            <div class="bottom-row px-4">
+                <AuthorizeView>
+                    <NavLink class="nav-link" href="order_history" Match="NavLinkMatch.All">
+                        <span class="oi oi-clock" aria-hidden="true"></span> Order History
+                    </NavLink>
+                </AuthorizeView>
+                <NavLink class="nav-link" href="policies" Match="NavLinkMatch.All">
+                    <span class="oi oi-file" aria-hidden="true"></span> Policies
+                </NavLink>
+                <NavLink class="nav-link" href="location" Match="NavLinkMatch.All">
+                    <span class="oi oi-map" aria-hidden="true"></span> Locations
+                </NavLink>
+                <NavLink class="nav-link" href="contact" Match="NavLinkMatch.All">
+                    <span class="oi oi-phone" aria-hidden="true"></span> Contact
+                </NavLink>
+                <AuthorizeView>
+                    <NavLink class="nav-link" href="my_favorites" Match="NavLinkMatch.All">
+                        <span class="oi oi-heart" aria-hidden="true"></span> My Favorites
+                    </NavLink>
+                </AuthorizeView>
+                <NavLink class="nav-link" href="our_favorites" Match="NavLinkMatch.All">
+                    <span class="oi oi-list" aria-hidden="true"></span> Our Favorites
+                </NavLink>
+            </div>
+        </footer>
+    </main>
+</div>

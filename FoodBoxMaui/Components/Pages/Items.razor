@@ -1,0 +1,48 @@
+﻿@page "/items"
+
+<h3>Items</h3>
+@if(items is not null)
+{
+    @foreach (var item in items)
+    {
+        <div class="col-xl-4 col-md-6">
+            <div class="single_order">
+                <div class="order_thumb">
+                    <img src="Images/@item.Image" class="rounded" style="height:17em;" alt="">
+                    <div class="order_prise">
+                        <span>@item.SuggestedPrice</span>
+                    </div>
+                    @* <AuthorizeView>
+                        @if(favsList.Where(fi => fi.ItemId == item.Id).Count() > 0)
+                        {
+                            <button onclick="@(async Task () => await UnLikeItem(item.Item.Id))" class="order_love">♥</button>
+                        }
+                        else
+                        {
+                            <button onclick="@(async Task () => await LikeItem(item.Item.Id))" class="order_like">♥</button>
+                        }
+                    </AuthorizeView> *@
+                </div>
+                <div class="order_info">
+                    <h3>@item.ItemName</h3>
+                    <p>
+                        @item.Ingredients
+                        <div class="text-black">@item.Description</div>
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    List<Item>? items = null;
+    protected override async Task OnInitializedAsync()
+    {
+        HttpClient hp = new();
+        Uri u = new("https://localhost:7220/");
+        hp.BaseAddress = u;
+        items = await hp.GetFromJsonAsync<List<Item>>("items");
+        // call our api
+    }
+}

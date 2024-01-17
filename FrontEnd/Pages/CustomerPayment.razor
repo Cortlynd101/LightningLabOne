@@ -1,0 +1,461 @@
+﻿@page "/CustomerPayment"
+@using FrontEnd.Pages.Dto;
+@using System.Security.Claims;
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Mail;
+@inject IDbContextFactory<FoodBoxDB> ContextFactory
+@inject NavigationManager NavigationManager
+@inject ILoggerFactory LoggerFactory
+
+<h3>Your Order: </h3>
+@if (cart is not null && cart.CartItems.Count() > 0)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Picture</th>
+                <th scope="col">Name</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Edit</th>
+                <th scope="col">Price</th>
+                <th scope="col">Remove</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cartItem in cart.CartItems)
+            {
+                <tr>
+                    <td><img src="Images/@cartItem.Item.Image" class="rounded-pill" alt="@cartItem.Item.ItemName image" style="height:13em;"></td>
+                    <td>@cartItem.Item.ItemName</td>
+                    <td>@cartItem.Quantity</td>
+                    <td><a href="edititem/@cartItem.Id" class="boxed_btn" style="color:black;">Edit</a></td>
+                    <td>@(cartItem.ActualPrice * cartItem.Quantity)</td>
+                    <td><a href="/removeItem/@cartItem.Id" class="boxed_btn" style="color:black;">Remove</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <h3>Order Total: @((orderTotal - couponTotal) <= 0 ? 0 : (orderTotal - couponTotal)) </h3>
+    <h3>Order Total With Tax: @((orderTotal - couponTotal) <= 0 ? 0 : (Math.Round((orderTotal - couponTotal)) * 1.073m, 2))</h3>
+    <div class="container">
+        <label for="restaurant" class="label-large" style="padding-bottom:0.5em;">Select Order Method</label>
+        <InputSelect id="restaurant" class="form-select label-large" style="padding-bottom:0.5em;"
+        @bind-Value="IsDilivery">
+            @foreach (var om in orderMethods)
+            {
+                <option value="@om">@om</option>
+            }
+        </InputSelect>
+    </div>
+
+    @* <-->This is for the addresses</--> *@
+
+    @if (IsDilivery == "Delivery")
+    {
+        <!-- Address and Payment Form -->
+        <section class="container mt-5" id="customer-form">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <h2>
+                        Enter Your Address and Payment Details
+                    </h2>
+                    <form id="customerForm">
+                        <div class="form-group">
+                            <label for="fullName">
+                                Full Name:
+                            </label>
+                            <input class="form-control" id="fullName" @bind-value="name" placeholder="John Doe" required="" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="address">
+                                Address:
+                            </label>
+                            <input class="form-control" id="address" @bind-value="address" placeholder="Enter your address" type="text" required=""></input>
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">
+                                Coupon Code:
+                            </label>
+                            <input class="form-control" id="coupon" maxlength="10" @bind-value="coupon" placeholder="your code" required="" type="text" />
+                        </div>
+                        @if(coupon is not null)
+                        {
+                            @if(isValidCoupon == true )
+                            {
+                                <h1>That coupon is valid.</h1>
+                            }
+                            else
+                            {
+                                <h1>That coupon is invalid.</h1>
+                            }
+                        }
+
+                        <button class="btn btn-primary" type="submit"
+                                disabled="@IsBusy" @onclick="HandleCoupon">
+                            Check Coupon
+                        </button>
+
+                        <div class="form-group">
+                            <label for="cardNumber">
+                                Card Number:
+                            </label>
+                            <input class="form-control" id="cardNumber" @bind-value="cardNumber" maxlength="19" placeholder="1234 5678 1234 5678" required="" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="expiryDate">
+                                Expiry Date:
+                            </label>
+                            <input class="form-control" id="expiryDate" @bind-value="date" required="" type="month" />
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">
+                                CVV:
+                            </label>
+                            <input class="form-control" id="cvv" maxlength="3" @bind-value="cvv" placeholder="123" required="" type="number" />
+                        </div>
+                        <button class="btn btn-primary w-100" type="submit"
+                                disabled="@IsBusy" @onclick="HandleSubmit">
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="container mt-5" id="customer-form">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <h2>
+                        Enter Your Address and Payment Details
+                    </h2>
+                    <form id="customerForm">
+                        <div class="form-group">
+                            <label for="fullName">
+                                Full Name:
+                            </label>
+                            <input class="form-control" id="fullName" @bind-value="name" placeholder="John Doe" required="" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">
+                                Coupon Code:
+                            </label>
+                            <input class="form-control" id="coupon" maxlength="10" @bind-value="coupon" placeholder="your code" required="" type="text" />
+                        </div>
+                        @if (coupon is not null)
+                        {
+                            @if (isValidCoupon == true)
+                            {
+                                <h1>That coupon is valid.</h1>
+                            }
+                            else
+                            {
+                                <h1>That coupon is invalid.</h1>
+                            }
+                        }
+
+                        <button class="btn btn-primary" type="submit"
+                                disabled="@IsBusy" @onclick="HandleCoupon">
+                            Check Coupon
+                        </button>
+                        <div class="form-group">
+                            <label for="cardNumber">
+                                Card Number:
+                            </label>
+                            <input class="form-control" @bind-value="cardNumber" id="cardNumber" required="" maxlength="19" placeholder="1234 5678 1234 5678" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="expiryDate">
+                                Expiry Date:
+                            </label>
+                            <input class="form-control" @bind-value="date" id="expiryDate" required="" type="month" />
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">
+                                CVV:
+                            </label>
+                            <input class="form-control" id="cvv" maxlength="3" required="" placeholder="123" type="number" />
+                        </div>
+                        <button class="btn btn-primary w-100" type="submit"
+                                disabled="@IsBusy" @onclick="HandleSubmit">
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    }
+}
+else
+{
+    <img class="emtbox" src="/Images/EmptyBox.png" />
+}
+
+@code {
+    //Payment payment { get; set; }
+    private decimal orderTotal { get; set; } = 0;
+    private EventCallback<bool> OnSubmit { get; set; }
+    private EventCallback OnCancel { get; set; }
+    private bool IsBusy { get; set; }
+    private List<string> orderMethods = new() { "Takeout", "Delivery" };
+    private int[] quantity = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    bool PopupVisible { get; set; }
+    private Cart cart { get; set; }
+    private CartItem cartItem { get; set; }
+    private Customer customer { get; set; }
+    string IsDilivery { get; set; } = "Delivery";
+    string cardNumber { get; set; }
+    string name { get; set; }
+    string address { get; set; }
+    int cvv { get; set; }
+    private string coupon { get; set; }
+    private IEnumerable<Coupon> coupons { get; set; }
+    private decimal couponTotal { get; set; } = 0;
+    private bool isValidCoupon { get; set; }
+
+    DateOnly date { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+    private List<PurchaseItem> finalPurchaseItems = new();
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthState { get; set; }
+
+
+    //private int
+
+    private async Task HandleValidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(true);
+        }
+    }
+    private async Task HandleInvalidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(false);
+        }
+    }
+    private async Task HandleCancel()
+    {
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+    private async Task HandleSubmit()
+    {
+        if(!IsBusy && cardNumber is not null && name is not null)
+        {
+            if ((IsDilivery == "Delivery" && address is not null) || IsDilivery == "Takeout")
+            {
+                IsBusy = true;
+                await FinishPurchase();
+                IsBusy = false;
+                cart = null;
+                NavigationManager.NavigateTo("/Confirmation", forceLoad: true);
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //payment = new();
+        var context = ContextFactory.CreateDbContext();
+
+        var a = await AuthState;
+        var userId = a.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var custs = await context.Customers.ToListAsync();
+        coupons = await context.Coupons.ToListAsync();
+
+        if (userId is null)
+        {
+            if ((customer = Order.CheckForCustomer(custs)) is null)
+            {
+                var userAndCustomer = Order.CreateCustomer();
+                context.Customers.Add(customer = userAndCustomer.Item2);
+                context.Users.Add(userAndCustomer.Item1);
+                await context.SaveChangesAsync();
+            }
+        }
+        else
+        {
+            customer = custs.Where(opt => opt.UserId == userId).Single();
+        }
+
+        cart = await context.Carts
+            .Where(c => c.CustomerId == customer.Id)
+            .Include(c => c.CartItems)
+            .ThenInclude(ci => ci.Item)
+            .SingleAsync();
+
+        @foreach (var cartItem in cart.CartItems)
+        {
+            orderTotal += cartItem.ActualPrice * cartItem.Quantity;
+        }
+
+        orderTotal = Math.Round(orderTotal, 2);
+
+        if(cart.CartItems.Count() < 1)
+        {
+            NavigationManager.NavigateTo("/Confirmation");
+        }
+    }
+    /*
+    private void SelectedOrderMethodUser()
+    {
+    if (IsDilivery)
+    {
+    isDelivered = true;
+    }
+    else
+    {
+    isDelivered =  false; 
+     }
+     }
+     */
+
+    private async Task<Purchase> AddPurchase()
+    {
+        var dbcontext = ContextFactory.CreateDbContext();
+        var purchase = new Purchase()
+            {
+                PurchaseDate = DateOnly.FromDateTime(DateTime.Now),
+                CustomerId = customer.Id,
+                RestaurantId = cart.RestaurantId
+            };
+
+        if (couponTotal > 0)
+        {
+            purchase.CouponId = (coupons.Where(c => c.Code == coupon).ToList()[0]).Id;
+        }
+
+        dbcontext.Purchases.Add(purchase);
+        await dbcontext.SaveChangesAsync();
+
+        purchase = (await dbcontext.Purchases.Where(p => p.CustomerId == customer.Id)
+            .ToListAsync()).MaxBy(p => p.Id);
+
+        List<PurchaseItem> purchaseItems = ParseCartItemsIntoPurchaseItems(cart.CartItems, purchase.Id);
+
+        var transaction = new PurchaseTransaction()
+        {
+            PurchaseId = purchase.Id,
+            CreditCardNumber = cardNumber,
+            AmountPaid = Math.Round(orderTotal * 1.073m, 2)
+        };
+
+        if(couponTotal > 0)
+        {
+            if (couponTotal >= orderTotal)
+            {
+                transaction.AmountPaid = 0;
+            }
+            else
+            {
+                transaction.AmountPaid = Math.Round((orderTotal - couponTotal) * 1.073m, 2);
+            }
+        }
+
+        dbcontext.PurchaseTransactions.Add(transaction);
+        dbcontext.PurchaseItems.AddRange(purchaseItems);
+        await dbcontext.SaveChangesAsync();
+
+        try
+        {
+            var a = await AuthState;
+            var userEmail = a.User.FindFirstValue(ClaimTypes.Email);
+
+            MailMessage newMail = new();
+            SmtpClient client = new(userEmail);
+            newMail.From = new MailAddress("foodbox401@gmail.com", "FoodBox");
+            newMail.To.Add(userEmail);
+            newMail.Subject = "FoodBox Reciept";
+            newMail.IsBodyHtml = true;
+            newMail.Body = "<h1> Thanks for ordering from us!! </h1>";
+            client.UseDefaultCredentials = true;
+            //client.Credentials = new System.Net.NetworkCredential("foodbox401@gmail.com", Configuration[blah]); // Cannot work because it does not trust google
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+            client.Host = "smtp.gmail.com";
+            client.EnableSsl = true;
+            client.Port = 587; // 25, 587, 5432, 465
+            //client.Send(newMail);
+        }
+        catch
+        {
+            ILogger l = LoggerFactory.CreateLogger<Program>();
+            l.LogError("No Email for the user");
+        }
+
+        ILogger logger = LoggerFactory.CreateLogger<Program>();
+        logger.LogInformation("The card was deleted");
+        return purchase;
+    }
+
+    public async Task FinishPurchase()
+    {
+        await AddPurchase();
+        await DeleteCartItems();
+        cart.CartItems = new List<CartItem>();
+    }
+
+    private List<PurchaseItem> ParseCartItemsIntoPurchaseItems(IEnumerable<CartItem> ciList, int purchaseId)
+    {
+        List<PurchaseItem> piList = new();
+
+        foreach(var ci in ciList)
+        {
+            piList.Add(
+                new PurchaseItem()
+                {
+                    ItemId = ci.ItemId,
+                    Quantity = ci.Quantity,
+                    ActualPrice = ci.ActualPrice,
+                    PurchaseId = purchaseId
+                }
+            );
+        }
+
+        return piList;
+    }
+
+    public async Task DeleteCartItems()
+    {
+        using var dbContext = ContextFactory.CreateDbContext();
+        await dbContext.CartItems.Where(ci => ci.CartId == cart.Id).ExecuteDeleteAsync();
+        await dbContext.SaveChangesAsync();
+        ILogger logger = LoggerFactory.CreateLogger<Program>();
+        logger.LogInformation("The card was deleted");
+    }
+    private void HandleCoupon()
+    {
+        if (coupon is not null)
+        {
+            IsBusy = true;
+            var chosenCoupons = coupons.Where(c => c.Code == coupon).ToList();
+            if (chosenCoupons.Count() > 0)
+            {
+                if (DateOnly.FromDateTime(DateTime.Today) <= chosenCoupons[0].EndDate && DateOnly.FromDateTime(DateTime.Today) >= chosenCoupons[0].StartDate)
+                {
+                    isValidCoupon = true;
+                    couponTotal = chosenCoupons[0].Discount;
+
+                }
+                else
+                {
+                    isValidCoupon = false;
+                    couponTotal = 0;
+                }
+            }
+            else
+            {
+                isValidCoupon = false;
+                couponTotal = 0;
+            }
+
+            IsBusy = false;
+        }
+    }
+
+}

@@ -1,0 +1,63 @@
+﻿@page "/admin"
+@inject RoleManager<IdentityRole> roleManager
+@inject UserManager<IdentityUser> userManager
+@* @attribute [Authorize(Roles = "admin")] *@
+
+
+<AuthorizeView Roles="@Constants.AdminRole">
+    <Authorized>
+        <h1>User Management</h1>
+
+
+        @if (users != null)
+        {
+            //your markup here. :)
+            <p>Admin Page</p>
+        }
+    </Authorized>
+    <NotAuthorized><p>You don't have access to this page.</p></NotAuthorized>
+</AuthorizeView>
+
+@code {
+    //this is SAMPLE code.  You can build off of this, but it's not complete...it's just a starting place.
+    string newRole = "";
+    List<IdentityUser> users;
+    Dictionary<IdentityUser, IEnumerable<string>> userRoles = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await refreshAsync();
+    }
+
+    async Task refreshAsync()
+    {
+        users = await userManager.Users.ToListAsync();
+        foreach (var user in users)
+        {
+            userRoles.Add(user, await userManager.GetRolesAsync(user));
+        }
+    }
+
+    async Task AddRole(IdentityUser user)
+    {
+        if (!string.IsNullOrEmpty(newRole))
+        {
+            var role = await roleManager.FindByNameAsync(newRole);
+            if (role == null)
+            {
+                await roleManager.CreateAsync(new IdentityRole { Name = newRole });
+            }
+
+            var result = await userManager.AddToRoleAsync(user, newRole);
+            if (result.Succeeded)
+            {
+                newRole = null;
+                await refreshAsync();
+            }
+            else
+            {
+                // Handle errors (e.g., role doesn't exist, user already has the role)
+            }
+        }
+    }
+}

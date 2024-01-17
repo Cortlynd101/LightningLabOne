@@ -1,0 +1,88 @@
+﻿@page "/removeitem/{SelectedItemId:int}"
+@using FrontEnd.Pages.Dto;
+@using FrontEnd.Pages
+@inject IDbContextFactory<FoodBoxDB> ContextFactory
+@inject NavigationManager NavigationManager
+
+
+<EditForm Model="selectedItemOrder">
+    <DataAnnotationsValidator />
+    <div class="background">
+        <div class="container">
+            <div class="screen">
+                <div class="screen-body">
+                    <div class="screen-body-item">
+                        <div class="app-form">
+                            <h4 class="app-form-group" style="color: red;">
+                                Remove Item?
+                                <InputSelect id="quantity" class="form-control"
+                                @bind-Value="@selectedOption">
+                                    @foreach (string option in yesOrNo)
+                                    {
+                                        <option value="@option">@option</option>
+                                    }
+                                </InputSelect>
+                            </h4>
+                            <div class="app-form-group buttons">
+                                <button type="submit" class="app-form-button" style="color: red;"
+                                        disabled="@IsBusy" onclick="@(() => HandleSubmitAsync())">
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int SelectedItemId { get; set; }
+    public EventCallback<bool> OnSubmit { get; set; }
+    private EventCallback OnCancel { get; set; }
+    private bool IsBusy { get; set; }
+    public string selectedOption { get; set; } = "No";
+    private string[] yesOrNo = new string[] { "Yes", "No" };
+    OrderingItemDto selectedItemOrder { get; set; } = new();
+
+    private async Task HandleValidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(true);
+        }
+    }
+    private async Task HandleInvalidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(false);
+        }
+    }
+    private async Task HandleCancel()
+    {
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        if (selectedOption == "Yes")
+        {
+            var context = ContextFactory.CreateDbContext();
+            await context.CartItems.Where(c => c.Id == SelectedItemId).ExecuteDeleteAsync();
+            await context.SaveChangesAsync();
+        }
+
+        NavigateToOrderPage();
+    }
+
+    private void NavigateToOrderPage()
+    {
+        NavigationManager.NavigateTo($"/order");
+    }
+}
