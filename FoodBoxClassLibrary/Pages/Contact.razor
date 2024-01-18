@@ -10,7 +10,15 @@
 {
     <h3>@message</h3>
 }
-<h3 class="testHeading">This is an animation!</h3>
+
+<section>
+    @* /testingContactComponent *@
+    <h1 class="animate bounce">This is an animation!</h1>
+
+    <h2 class="animate slideInRight animate--slow">This is an animation!</h2>
+
+    <h3 class="animate rotate animate--slow animate--infinite"> This is an animation! </h3>
+</section>
 
 <EditForm Model="contact">
     <DataAnnotationsValidator/> 
