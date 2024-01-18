@@ -1,6 +1,37 @@
 ﻿/*https://codepen.io/krisantuswanandi/pen/KxrgeZ */
 /* /testingContactComponent */
 /* Utility classes */
+.heading {
+    animation-name: slideInLeft;
+    /* Allows us to select the animation we want. */
+    
+    animation-duration: 1s;
+    /* How long the animation takes in total. */
+    
+    animation-timing-function: ease-in;
+    /* How jarring the animation is. */
+    
+    animation-delay: 1s;
+    /* How long until the animation starts. */
+    
+    animation-iteration-count: 1;
+    /* How many times the animation will repeat. */
+    
+    animation-direction: normal;
+    /* Mainly used to keep it normal or reverse it. */
+    
+    animation-fill-mode: none;
+    /* Controls how the animation will follow its own rules. */
+    
+    /*transform: translate(-150px);*/
+    /* Allows us to start with the animation translated in 
+        a direction.
+    */
+
+    animation: slideInLeft 1s ease-in 1s 1 normal none;
+    /* Can combine all attributes into a nice shorthand.*/
+}
+
 .animate {
     animation-duration: 1s;
     animation-fill-mode: both;
